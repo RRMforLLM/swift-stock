@@ -1,3 +1,42 @@
+import React from 'react';
+import { StyleSheet } from 'react-native';
+
+export type StoreProps = {
+  name: string;
+  onPress?: () => void;
+  onLongPress?: () => void;
+  style?: any;
+};
+
+export function Store({ name, onPress, onLongPress, style }: StoreProps) {
+  const theme = useColorScheme() ?? 'light';
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      onLongPress={onLongPress}
+      style={[
+        {
+          backgroundColor: Colors[theme].background,
+          borderColor: Colors[theme].tint,
+          borderWidth: 1,
+          borderRadius: 8,
+          padding: 14,
+          marginBottom: 8,
+          width: '100%',
+          shadowColor: Colors[theme].tint,
+          shadowOpacity: 0.08,
+          shadowRadius: 4,
+          shadowOffset: { width: 0, height: 2 },
+        },
+        style,
+      ]}
+      activeOpacity={onPress ? 0.8 : 1}
+      disabled={!onPress}
+    >
+      <DefaultText style={{ fontWeight: 'bold', fontSize: 16 }}>{name}</DefaultText>
+    </TouchableOpacity>
+  );
+}
 import { ScrollView as DefaultScrollView, ScrollViewProps } from 'react-native';
 export type ThemedScrollViewProps = ThemeProps & ScrollViewProps;
 
