@@ -32,7 +32,7 @@ export default function TabLayout() {
           title: 'Registro',
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
           headerRight: () => (
-            <Link href="/stores" asChild>
+            <Link href="/Tiendas" asChild>
               <Pressable>
                 {({ pressed }) => (
                   <FontAwesome
