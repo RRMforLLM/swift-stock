@@ -57,6 +57,13 @@ export default function TabOneScreen() {
 
   const removeStore = async (id: number) => {
     try {
+      if (sstore && Array.isArray(sstore)) {
+        for (const selected of sstore) {
+          if (selected.store === id) {
+            await deleteSstore({ id: selected.id });
+          }
+        }
+      }
       await deleteStore({ id: id });
       const updatedStores = await getStores();
       setStores(updatedStores);
