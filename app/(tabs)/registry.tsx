@@ -7,6 +7,7 @@ import { Text, ScrollView, View, Button, Input, Choice, Menu, Modal, Log } from 
 import { initDatabase } from '@/database/migrations'
 import { getSstore, getUniforms, getOperations, insertUniform, insertOperation, deleteUniform, deleteOperation } from '@/database/services'
 import { ResetDbButton } from '@/components/resetDbButton';
+import { ExportDbButton } from '@/components/exportDbButton';
 
 export default function TabOneScreen() {
   // CONSTANTS
@@ -30,28 +31,34 @@ export default function TabOneScreen() {
   // EFFECTS
   useFocusEffect(
     React.useCallback(() => {
+      let isActive = true;
       const setup = async () => {
         await initDatabase();
         const fetchedUniforms = await getUniforms();
-        setUniforms(fetchedUniforms);
-        const fetchedOperations = await getOperations();
-        setOperations(fetchedOperations);
+        if (isActive) setUniforms(fetchedUniforms);
+
         const sstore = await getSstore();
         if (Array.isArray(sstore) && sstore.length > 0) {
           const typedSstore = sstore as { store: number }[];
           const storeId = typedSstore[0].store;
-          setSelectedStoreId(storeId);
+          if (isActive) setSelectedStoreId(storeId);
           const stores = await import('@/database/services').then(mod => mod.getStores());
           type Store = { id: number; name: string };
           const found = Array.isArray(stores) ? (stores as Store[]).find((s: Store) => s.id === storeId) : null;
-          setSelectedStoreName(found ? found.name : '');
-          setOperationStore(storeId.toString());
+          if (isActive) setSelectedStoreName(found ? found.name : '');
+          if (isActive) setOperationStore(storeId.toString());
+
+          const fetchedOperations = await getOperations(storeId);
+          if (isActive) setOperations(fetchedOperations);
         } else {
-          setSelectedStoreName('');
-          setOperationStore('');
+          if (isActive) setSelectedStoreName('');
+          if (isActive) setOperationStore('');
+          if (isActive) setSelectedStoreId(null);
+          if (isActive) setOperations([]);
         }
       };
       setup();
+      return () => { isActive = false; };
     }, [])
   );
 
@@ -76,6 +83,16 @@ export default function TabOneScreen() {
       setOperationDate(new Date().toISOString().split('T')[0]);
     } catch (error) {
       console.error('Error adding operation:', error);
+    }
+  };
+
+  const removeOperation = async (id: number) => {
+    try {
+      await deleteOperation({ id: id });
+      const updatedOperations = await getOperations();
+      setOperations(updatedOperations);
+    } catch (error) {
+      console.error('Error removing operation:', error);
     }
   };
 
@@ -107,9 +124,9 @@ export default function TabOneScreen() {
       );
     }
 
-    if (Array.isArray(operations) && operations.length === 0) {
+    if (operations.length === 0) {
       return (
-        <View style={styles.container}>
+        <ScrollView style={styles.scrollcontainer} contentContainerStyle={styles.contentContainer}>
           <View style={styles.subcontainer}>
             <Text style={styles.text}>Tienda</Text>
             <Input style={styles.input} placeholder="Tienda" value={selectedStoreName} editable={false} />
@@ -117,6 +134,10 @@ export default function TabOneScreen() {
             <Choice value={operationType} optionA="Entrada" optionB="Salida" onChange={setOperationType} />
             <Text style={styles.text}>Concepto</Text>
             <Input style={styles.input} placeholder="Concepto" value={operationConcept} onChangeText={setOperationConcept} />
+            <Text style={styles.text}>Cantidad</Text>
+            <Input style={styles.input} placeholder="Cantidad" value={operationQuantity} onChangeText={setOperationQuantity} />
+            <Text style={styles.text}>Fecha</Text>
+            <Input style={styles.input} placeholder="Fecha" value={operationDate} onChangeText={setOperationDate} />
             <Text style={styles.text}>Uniforme</Text> 
             <Menu
               value={operationUniform}
@@ -136,7 +157,6 @@ export default function TabOneScreen() {
                 }
               }}
             />
-            {/* Modal for adding a new uniform */}
             <Modal visible={showUniformModal} onRequestClose={() => setShowUniformModal(false)}>
               <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 8, minWidth: 250 }}>
                 <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 12 }}>Agregar Uniforme</Text>
@@ -177,26 +197,111 @@ export default function TabOneScreen() {
                 </View>
               </View>
             </Modal>
+            <Button title="REGISTRAR" onPress={addOperation} />
           </View>
           <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-        </View>
+          <ResetDbButton />
+          <ExportDbButton />
+        </ScrollView>
       );
     }
 
-    if (Array.isArray(operations) && operations.length > 0) {
+    if (operations.length > 0) {
       return (
-        <View style={styles.container}>
+        <ScrollView style={styles.scrollcontainer} contentContainerStyle={styles.contentContainer}>
           <View style={styles.subcontainer}>
             <Text style={styles.text}>Tienda</Text>
-            <Input
-              style={styles.input}
-              placeholder="Tienda"
-              value={selectedStoreName}
-              editable={false}
+            <Input style={styles.input} placeholder="Tienda" value={selectedStoreName} editable={false} />
+            <Text style={styles.text}>Operación</Text>
+            <Choice value={operationType} optionA="Entrada" optionB="Salida" onChange={setOperationType} />
+            <Text style={styles.text}>Concepto</Text>
+            <Input style={styles.input} placeholder="Concepto" value={operationConcept} onChangeText={setOperationConcept} />
+            <Text style={styles.text}>Cantidad</Text>
+            <Input style={styles.input} placeholder="Cantidad" value={operationQuantity} onChangeText={setOperationQuantity} />
+            <Text style={styles.text}>Fecha</Text>
+            <Input style={styles.input} placeholder="Fecha" value={operationDate} onChangeText={setOperationDate} />
+            <Text style={styles.text}>Uniforme</Text> 
+            <Menu
+              value={operationUniform}
+              options={
+                Array.isArray(uniforms)
+                  ? [
+                      ...uniforms.map((u: any) => ({ label: `${u.type} ${u.size}`, value: u.id.toString() })),
+                      { label: '+ Agregar nuevo uniforme...', value: '__add__' }
+                    ]
+                  : []
+              }
+              onChange={val => {
+                if (val === '__add__') {
+                  setShowUniformModal(true);
+                } else {
+                  setOperationUniform(val);
+                }
+              }}
             />
+            <Modal visible={showUniformModal} onRequestClose={() => setShowUniformModal(false)}>
+              <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 8, minWidth: 250 }}>
+                <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 12 }}>Agregar Uniforme</Text>
+                <Input
+                  style={{ marginBottom: 8 }}
+                  placeholder="Tipo"
+                  value={newUniformType}
+                  onChangeText={setNewUniformType}
+                />
+                <Input
+                  style={{ marginBottom: 16 }}
+                  placeholder="Talla"
+                  value={newUniformSize}
+                  onChangeText={setNewUniformSize}
+                />
+                <View style={{ flexDirection: 'row', justifyContent: 'flex-end' }}>
+                  <Button
+                    title="Cancelar"
+                    onPress={() => {
+                      setShowUniformModal(false);
+                      setNewUniformType('');
+                      setNewUniformSize('');
+                    }}
+                    style={{ marginRight: 8 }}
+                  />
+                  <Button
+                    title="Agregar"
+                    onPress={async () => {
+                      if (!newUniformType.trim() || !newUniformSize.trim()) return;
+                      await insertUniform({ type: newUniformType.trim(), size: newUniformSize.trim() });
+                      const updatedUniforms = await getUniforms();
+                      setUniforms(updatedUniforms);
+                      setShowUniformModal(false);
+                      setNewUniformType('');
+                      setNewUniformSize('');
+                    }}
+                  />
+                </View>
+              </View>
+            </Modal>
+            <Button title="REGISTRAR" onPress={addOperation} />
           </View>
           <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-        </View>
+          <View style={styles.subcontainer}>
+            {Array.isArray(operations) && operations.length > 0 ? (
+              operations.map((op: any) => (
+                <Log
+                  key={op.id}
+                  type={op.type}
+                  concept={op.concept}
+                  uniform={op.uniform?.type ? `${op.uniform.type} ${op.uniform.size}` : ''}
+                  quantity={op.quantity}
+                  date={op.date}
+                  onLongPress={() => removeOperation(op.id)}
+                />
+              ))
+            ) : (
+              <Text style={styles.text}>No hay registros en esta tienda.</Text>
+            )}
+          </View>
+          <ResetDbButton />
+          <ExportDbButton />
+        </ScrollView>
       );
     }
   }

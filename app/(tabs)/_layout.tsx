@@ -30,7 +30,7 @@ export default function TabLayout() {
         name="registry"
         options={{
           title: 'Registro',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="book" color={color} />,
           headerRight: () => (
             <Link href="/Tiendas" asChild>
               <Pressable>
@@ -51,7 +51,7 @@ export default function TabLayout() {
         name="inventory"
         options={{
           title: 'Inventario',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="dropbox" color={color} />,
         }}
       />
     </Tabs>

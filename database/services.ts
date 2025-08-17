@@ -34,37 +34,40 @@ export const getUniforms = async () => {
   }
 };
 
-export const getOperations = async () => {
-  const query = `
+export const getOperations = async (storeId?: number) => {
+  let query = `
     SELECT 
       o.id,
-      o.store AS sstore_id,
+      o.store AS store_id,
       o.type,
       o.concept,
       o.uniform,
       o.quantity,
       o.date,
-      ss.store as store_name,
+      s.id as store_id,
       s.name as store_name,
       u.id as uniform_id,
       u.type as uniform_type,
       u.size as uniform_size
     FROM OPERATIONS o
-    JOIN SSTORE ss ON o.store = ss.id
-    JOIN STORES s ON ss.store = s.id
+    JOIN STORES s ON o.store = s.id
     JOIN UNIFORMS u ON o.uniform = u.id
-    ORDER BY o.date DESC
   `;
+  const params: any[] = [];
+  if (typeof storeId === 'number') {
+    query += ' WHERE o.store = ?';
+    params.push(storeId);
+  }
+  query += ' ORDER BY o.date DESC';
   try {
-    const result = await db.getAllAsync(query);
+    const result = await db.getAllAsync(query, params);
     return result.map((row: any) => ({
       id: row.id,
-      operation: row.type === 1,
+      type: row.type,
       concept: row.concept,
       quantity: row.quantity,
       date: row.date,
       store: {
-        sstore_id: row.sstore_id,
         id: row.store_id,
         name: row.store_name
       },
