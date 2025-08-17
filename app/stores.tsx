@@ -116,7 +116,7 @@ export default function TabOneScreen() {
               onLongPress={() => removeStore(store.id)}
               style={
                 sstore && Array.isArray(sstore) && sstore.some((sel: any) => sel.store === store.id)
-                  ? { borderColor: 'green', borderWidth: 2 }
+                  ? { borderColor: '#3fcc7f', borderWidth: 2 }
                   : undefined
               }
             />
