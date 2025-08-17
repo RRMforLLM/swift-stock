@@ -1,3 +1,86 @@
+import { Modal as RNModal } from 'react-native';
+
+export type ModalProps = {
+  visible: boolean;
+  onRequestClose: () => void;
+  children: React.ReactNode;
+  transparent?: boolean;
+  animationType?: 'none' | 'slide' | 'fade';
+  style?: any;
+};
+
+export function Modal({ visible, onRequestClose, children, transparent = true, animationType = 'fade', style }: ModalProps) {
+  return (
+    <RNModal
+      visible={visible}
+      onRequestClose={onRequestClose}
+      transparent={transparent}
+      animationType={animationType}
+    >
+      <DefaultView style={[{
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.3)',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }, style]}>
+        {children}
+      </DefaultView>
+    </RNModal>
+  );
+}
+export type MenuProps = {
+  label?: string;
+  value: string;
+  options: { label: string; value: string }[];
+  onChange: (val: string) => void;
+  style?: any;
+};
+
+export function Menu({ label, value, options, onChange, style }: MenuProps) {
+  const theme = useColorScheme() ?? 'light';
+  const [open, setOpen] = React.useState(false);
+  return (
+    <View style={[{ marginBottom: 12 }, style]}>
+      {label && <DefaultText style={{ marginBottom: 4 }}>{label}</DefaultText>}
+      <TouchableOpacity
+        style={{
+          padding: 10,
+          backgroundColor: Colors[theme].background,
+          borderColor: Colors[theme].tint,
+          borderWidth: 1,
+          borderRadius: 6,
+        }}
+        onPress={() => setOpen((o) => !o)}
+        activeOpacity={0.8}
+      >
+        <DefaultText style={{ color: Colors[theme].text }}>{options.find(o => o.value === value)?.label || 'Seleccionar...'}</DefaultText>
+      </TouchableOpacity>
+      {open && (
+        <View style={{
+          backgroundColor: Colors[theme].background,
+          borderColor: Colors[theme].tint,
+          borderWidth: 1,
+          borderRadius: 6,
+          marginTop: 4,
+          zIndex: 10,
+        }}>
+          {options.map((opt) => (
+            <TouchableOpacity
+              key={opt.value}
+              style={{ padding: 10, backgroundColor: value === opt.value ? Colors[theme].tint : 'transparent' }}
+              onPress={() => {
+                onChange(opt.value);
+                setOpen(false);
+              }}
+            >
+              <DefaultText style={{ color: value === opt.value ? Colors[theme].background : Colors[theme].text }}>{opt.label}</DefaultText>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
 // Choice component: input with two options
 export type ChoiceProps = {
   label?: string;
