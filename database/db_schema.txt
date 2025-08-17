@@ -1,0 +1,17 @@
+STORES
+- id: int
+- name: str
+
+UNIFORMS
+- id: int
+- type: str
+- size: str
+
+OPERATIONS
+- id: int
+- store: int            # FK at STORES.id
+- operation: bool       # Entry - true; Exit - false
+- concept: str
+- uniform: int          # FK at UNIFORMS.id
+- quantity: int
+- date: datetime
