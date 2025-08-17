@@ -185,16 +185,18 @@ export function ScrollView(props: ThemedScrollViewProps) {
   );
 }
 export type LogProps = {
-  subject: string;
-  details?: string;
-  deadline?: string;
+  type: string;
+  concept?: string;
+  uniform?: string;
+  quantity?: number;
+  date?: string;
   style?: any;
   children?: React.ReactNode;
   onPress?: () => void;
   onLongPress?: () => void;
 };
 
-export function Log({ subject, details, deadline, style, children, onPress, onLongPress }: LogProps) {
+export function Log({ type, concept, uniform, quantity, date, style, children, onPress, onLongPress }: LogProps) {
   const theme = useColorScheme() ?? 'light';
   return (
     <TouchableOpacity
@@ -219,9 +221,11 @@ export function Log({ subject, details, deadline, style, children, onPress, onLo
       ]}
       disabled={!onPress && !onLongPress}
     >
-      <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 4 }}>{subject}</Text>
-      {details ? <Text style={{ color: Colors[theme].fadedText, marginBottom: 2 }}>{details}</Text> : null}
-      {deadline ? <Text style={{ color: Colors[theme].tint, fontSize: 12 }}>Due: {deadline}</Text> : null}
+      <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 2 }}>{type}</Text>
+      {concept && <Text style={{ color: Colors[theme].fadedText, marginBottom: 2 }}>Concepto: {concept}</Text>}
+      {uniform && <Text style={{ color: Colors[theme].text, marginBottom: 2 }}>Uniforme: {uniform}</Text>}
+      {typeof quantity === 'number' && <Text style={{ color: Colors[theme].text, marginBottom: 2 }}>Cantidad: {quantity}</Text>}
+      {date && <Text style={{ color: Colors[theme].tint, fontSize: 12, marginBottom: 2 }}>Fecha: {date}</Text>}
       {children}
     </TouchableOpacity>
   );
