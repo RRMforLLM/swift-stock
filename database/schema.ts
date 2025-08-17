@@ -19,7 +19,7 @@ export const createTables = [
   `CREATE TABLE IF NOT EXISTS OPERATIONS (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     store INTEGER NOT NULL,
-    type BOOLEAN NOT NULL,
+    type TEXT NOT NULL,
     concept TEXT NOT NULL,
     uniform INTEGER NOT NULL,
     quantity INTEGER NOT NULL,

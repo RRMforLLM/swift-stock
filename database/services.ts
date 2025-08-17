@@ -12,7 +12,7 @@ export const getStores = async () => {
   }
 };
 
-export const getSStore = async () => {
+export const getSstore = async () => {
     const query = 'SELECT * FROM SSTORE';
     try {
         const result = await db.getAllAsync(query);
@@ -44,7 +44,7 @@ export const getOperations = async () => {
       o.uniform,
       o.quantity,
       o.date,
-      ss.store as store_id,
+      ss.store as store_name,
       s.name as store_name,
       u.id as uniform_id,
       u.type as uniform_type,
@@ -64,8 +64,8 @@ export const getOperations = async () => {
       quantity: row.quantity,
       date: row.date,
       store: {
-        sstore_id: row.sstore_id, // SSTORE id
-        id: row.store_id,         // STORES id
+        sstore_id: row.sstore_id,
+        id: row.store_id,
         name: row.store_name
       },
       uniform: {
@@ -96,10 +96,10 @@ export const insertStore = async ({
   }
 };
 
-export const insertSStore = async ({
+export const insertSstore = async ({
   store,
 }: {
-  store: number; // STORES.id
+  store: number;
 }): Promise<number> => {
   const query = 'INSERT INTO SSTORE (store) VALUES (?)';
   try {
@@ -130,14 +130,14 @@ export const insertUniform = async ({
 
 export const insertOperation = async ({
   store,
-  operation,
+  type,
   concept,
   uniform,
   quantity,
   date,
 }: {
   store: number;
-  operation: boolean;
+  type: string;
   concept: string;
   uniform: number;
   quantity: number;
@@ -145,7 +145,7 @@ export const insertOperation = async ({
 }): Promise<number> => {
   const query = 'INSERT INTO OPERATIONS (store, type, concept, uniform, quantity, date) VALUES (?, ?, ?, ?, ?, ?)';
   try {
-    const result = await db.runAsync(query, [store, operation ? 1 : 0, concept, uniform, quantity, date]);
+    const result = await db.runAsync(query, [store, type, concept, uniform, quantity, date]);
     return result.lastInsertRowId;
   } catch (error) {
     console.error('Error inserting operation:', error);
@@ -168,7 +168,7 @@ export const deleteStore = async ({
   }
 };
 
-export const deleteSStore = async ({
+export const deleteSstore = async ({
   id,
 }: {
     id: number;

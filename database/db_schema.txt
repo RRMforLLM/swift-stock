@@ -14,7 +14,7 @@ UNIFORMS
 OPERATIONS
 - id: int
 - store: int            # FK at SSTORE.id
-- type: bool            # Entry - true; Exit - false
+- type: str
 - concept: str
 - uniform: int          # FK at UNIFORMS.id
 - quantity: int
