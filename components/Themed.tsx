@@ -1,3 +1,53 @@
+// Choice component: input with two options
+export type ChoiceProps = {
+  label?: string;
+  value: string;
+  optionA: string;
+  optionB: string;
+  onChange: (val: string) => void;
+  style?: any;
+};
+
+export function Choice({ label, value, optionA, optionB, onChange, style }: ChoiceProps) {
+  const theme = useColorScheme() ?? 'light';
+  return (
+    <View style={[{ marginBottom: 12 }, style]}>
+      {label && <DefaultText style={{ marginBottom: 4 }}>{label}</DefaultText>}
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            padding: 10,
+            backgroundColor: value === optionA ? Colors[theme].tint : Colors[theme].background,
+            borderColor: Colors[theme].tint,
+            borderWidth: 1,
+            borderRadius: 6,
+            marginRight: 6,
+            alignItems: 'center',
+          }}
+          onPress={() => onChange(optionA)}
+        >
+          <DefaultText style={{ color: value === optionA ? Colors[theme].background : Colors[theme].text }}>{optionA}</DefaultText>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            padding: 10,
+            backgroundColor: value === optionB ? Colors[theme].tint : Colors[theme].background,
+            borderColor: Colors[theme].tint,
+            borderWidth: 1,
+            borderRadius: 6,
+            marginLeft: 6,
+            alignItems: 'center',
+          }}
+          onPress={() => onChange(optionB)}
+        >
+          <DefaultText style={{ color: value === optionB ? Colors[theme].background : Colors[theme].text }}>{optionB}</DefaultText>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
