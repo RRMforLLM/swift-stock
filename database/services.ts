@@ -12,6 +12,17 @@ export const getStores = async () => {
   }
 };
 
+export const getSStore = async () => {
+    const query = 'SELECT * FROM SSTORE';
+    try {
+        const result = await db.getAllAsync(query);
+        return result;
+    } catch (error) {
+        console.error('Error fetching selected store:', error);
+        throw error;
+    }
+};
+
 export const getUniforms = async () => {
   const query = 'SELECT * FROM UNIFORMS';
   try {
@@ -27,17 +38,20 @@ export const getOperations = async () => {
   const query = `
     SELECT 
       o.id,
-      o.operation,
+      o.store AS sstore_id,
+      o.type,
       o.concept,
+      o.uniform,
       o.quantity,
       o.date,
-      s.id as store_id,
+      ss.store as store_id,
       s.name as store_name,
       u.id as uniform_id,
       u.type as uniform_type,
       u.size as uniform_size
     FROM OPERATIONS o
-    JOIN STORES s ON o.store = s.id
+    JOIN SSTORE ss ON o.store = ss.id
+    JOIN STORES s ON ss.store = s.id
     JOIN UNIFORMS u ON o.uniform = u.id
     ORDER BY o.date DESC
   `;
@@ -45,12 +59,13 @@ export const getOperations = async () => {
     const result = await db.getAllAsync(query);
     return result.map((row: any) => ({
       id: row.id,
-      operation: row.operation === 1,
+      operation: row.type === 1,
       concept: row.concept,
       quantity: row.quantity,
       date: row.date,
       store: {
-        id: row.store_id,
+        sstore_id: row.sstore_id, // SSTORE id
+        id: row.store_id,         // STORES id
         name: row.store_name
       },
       uniform: {
@@ -77,6 +92,21 @@ export const insertStore = async ({
     return result.lastInsertRowId;
   } catch (error) {
     console.error('Error inserting store:', error);
+    throw error;
+  }
+};
+
+export const insertSStore = async ({
+  store,
+}: {
+  store: number; // STORES.id
+}): Promise<number> => {
+  const query = 'INSERT INTO SSTORE (store) VALUES (?)';
+  try {
+    const result = await db.runAsync(query, [store]);
+    return result.lastInsertRowId;
+  } catch (error) {
+    console.error('Error inserting SSTORE:', error);
     throw error;
   }
 };
@@ -113,7 +143,7 @@ export const insertOperation = async ({
   quantity: number;
   date: string;
 }): Promise<number> => {
-  const query = 'INSERT INTO OPERATIONS (store, operation, concept, uniform, quantity, date) VALUES (?, ?, ?, ?, ?, ?)';
+  const query = 'INSERT INTO OPERATIONS (store, type, concept, uniform, quantity, date) VALUES (?, ?, ?, ?, ?, ?)';
   try {
     const result = await db.runAsync(query, [store, operation ? 1 : 0, concept, uniform, quantity, date]);
     return result.lastInsertRowId;
@@ -134,6 +164,20 @@ export const deleteStore = async ({
     await db.runAsync(query, [id]);
   } catch (error) {
     console.error('Error deleting store:', error);
+    throw error;
+  }
+};
+
+export const deleteSStore = async ({
+  id,
+}: {
+    id: number;
+}): Promise<void> => {
+  const query = 'DELETE FROM SSTORE WHERE ID = ?';
+  try {
+    await db.runAsync(query, [id]);
+  } catch (error) {
+    console.error('Error deleting selected store:', error);
     throw error;
   }
 };

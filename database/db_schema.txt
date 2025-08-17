@@ -2,6 +2,10 @@ STORES
 - id: int
 - name: str
 
+SSTORE
+- id: int
+- store: int            # FK at STORES.id
+
 UNIFORMS
 - id: int
 - type: str
@@ -9,8 +13,8 @@ UNIFORMS
 
 OPERATIONS
 - id: int
-- store: int            # FK at STORES.id
-- operation: bool       # Entry - true; Exit - false
+- store: int            # FK at SSTORE.id
+- type: bool            # Entry - true; Exit - false
 - concept: str
 - uniform: int          # FK at UNIFORMS.id
 - quantity: int
