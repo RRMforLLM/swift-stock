@@ -42,7 +42,6 @@ export default function TabOneScreen() {
 
   const addSstore = async (id: number) => {
     try {
-      // Remove all previous selected stores (unselect all)
       if (sstore && Array.isArray(sstore) && sstore.length > 0) {
         for (const selected of sstore) {
           await deleteSstore({ id: selected.id });
@@ -63,16 +62,6 @@ export default function TabOneScreen() {
       setStores(updatedStores);
     } catch (error) {
       console.error('Error removing store:', error);
-    }
-  };
-
-  const removeSstore = async (id: number) => {
-    try {
-      await deleteSstore({ id: id });
-      const updatedSstore = await getSstore();
-      setSstore(updatedSstore);
-    } catch (error) {
-      console.error('Error removing sstore:', error);
     }
   };
 
