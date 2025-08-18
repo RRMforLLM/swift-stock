@@ -83,6 +83,17 @@ export const getOperations = async (storeId?: number) => {
   }
 };
 
+export const getInventory = async () =>{
+  const query = 'SELECT * FROM INVENTORY';
+  try {
+    const result = await db.getAllAsync(query);
+    return result;
+  } catch (error) {
+    console.error('Error fetching inventory:', error);
+    throw error;
+  }
+};
+
 // INSERTING DATA
 export const insertStore = async ({
   name,
@@ -155,6 +166,8 @@ export const insertOperation = async ({
     throw error;
   }
 };
+
+// TODO: Implement insertInventory
 
 // DELETING DATA
 export const deleteStore = async ({
