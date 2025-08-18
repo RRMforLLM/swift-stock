@@ -19,3 +19,9 @@ OPERATIONS
 - uniform: int          # FK at UNIFORMS.id
 - quantity: int
 - date: datetime
+
+INVENTORY
+- id: int
+- store: int            # FK at SSTORE.id
+- uniform: int          # FK at UNIFORMS.id
+- amount: int
